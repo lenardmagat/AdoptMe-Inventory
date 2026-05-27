@@ -11,6 +11,8 @@ services:
       POSTGRES_DB: inventory_db
     ports:
       - "5433:5432" # Maps the container's 5432 port to your machine's 5432 port
+    networks:
+      - inventory_network
     volumes:
       - postgres_data:/var/lib/postgresql/data # Prevents data loss when container stops
 
@@ -36,8 +38,12 @@ services:
       - JWT_ISSUER=${JWT_ISSUER}
       - JWT_AUDIENCE=${JWT_AUDIENCE}
       - HASHIDS_SALT=${HASHIDS_SALT}
+    networks:
+      - inventory_network
     depends_on:
       - inventory-db
-
+networks:
+  inventory_network:
+    driver: bridge
 volumes:
   postgres_data: # Declares the persistent volume
