@@ -1,0 +1,10 @@
+obj/
+bin/
+Properties/
+appsettings.Development.json
+appsettings.json
+.vscode
+appsettings.Development.json
+.env
+Migrations/
+test.rest

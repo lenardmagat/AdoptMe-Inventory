@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # 🗄️ The PostgreSQL Database Container
+  inventory-db:
+    image: postgres:16-alpine # Using a modern, lightweight Postgres version
+    container_name: inventory_postgres_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: SecretPassword123
+      POSTGRES_DB: inventory_db
+    ports:
+      - "5433:5432" # Maps the container's 5432 port to your machine's 5432 port
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Prevents data loss when container stops
+
+  # ⚡ Your C# Application Container
+  inventory-api:
+    image: inventory-api
+    healthcheck: # 👈 Add this health check script
+      test: ["CMD-SHELL", "pg_isready -U admin -d inventory_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: inventory_api_service
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # 📢 TARGETING THE POSTGRES CONTAINER BY ITS SERVICE NAME
+      - DATABASE_CONNECTION=${DATABASE_CONNECTION}
+      - JWT_Key=${JWT_Key}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
+      - HASHIDS_SALT=${HASHIDS_SALT}
+    depends_on:
+      - inventory-db
+
+volumes:
+  postgres_data: # Declares the persistent volume
