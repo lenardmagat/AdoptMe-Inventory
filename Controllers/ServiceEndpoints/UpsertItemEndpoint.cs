@@ -3,6 +3,7 @@ using inventory.Services;
 using inventory.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using inventory.Extensions;
+using inventory.Helper;
 namespace inventory.Controllers.Services;
 public partial class ServiceController
 {
@@ -17,16 +18,6 @@ public partial class ServiceController
         var UserId = User.GetUserId();
         if (!UserId.HasValue) return Unauthorized();
         var result = await upsertItemasync.ExecuteUpsertItemasync(UserId.Value, itemDetails, cancellation);
-        if (!result.IsSuccess)
-        {
-            return StatusCode(
-                result.StatusCode, new
-                {
-                    error = result.Error,
-                    timestamp = DateTime.UtcNow
-                }
-            );
-        }
-        return Ok(result);
+        return result.Result();
     }
 }

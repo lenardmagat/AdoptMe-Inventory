@@ -33,3 +33,13 @@ public class UserInventoryItemData
     public string ItemName {get; set;} = null!;
     public string Username {get; set;} = null!;
 }
+public class DeleteItem
+{
+    public string ItemId {get; set;} = null!;
+    public string InventoryId {get; set;} = null!;
+}
+
+public class DeleteInventory
+{
+    public string InventoryId {get; set;} = null!;
+}

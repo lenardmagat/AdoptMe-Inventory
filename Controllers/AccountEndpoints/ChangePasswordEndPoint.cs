@@ -4,6 +4,7 @@ using inventory.Services;
 using Microsoft.AspNetCore.Authorization;
 using inventory.Extensions;
 using System.Xml.XPath;
+using inventory.Helper;
 namespace inventory.Controllers.AccountController;
 public partial class AccountController
 {
@@ -18,14 +19,6 @@ public partial class AccountController
         int? UserId = User.GetUserId();
         if(UserId == null) return Unauthorized();
         var result = await changePasswordServices.ChangePasswordExecute(credentials, cancellationToken, UserId.Value);
-        if(!result.IsSuccess)
-            return StatusCode(
-                result.StatusCode, new
-                {
-                    erro = result.Error,
-                    timestamp = DateTime.UtcNow
-                }
-            );
-        return Ok(result);
+        return result.Result();
     }
 }

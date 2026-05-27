@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using inventory.Services;
+using inventory.Helper;
 namespace inventory.Controllers.Services;
 public partial class ServiceController
 {
@@ -10,14 +11,6 @@ public partial class ServiceController
     )
     {
         var result =  await getPetLibrary.ExecuteGetItemLibrary(cancellation);
-        if(!result.IsSuccess)
-            return StatusCode(
-                result.StatusCode, new
-                {
-                    error = result.Error,
-                    timestampt = DateTime.UtcNow
-                }
-            );
-        return Ok(result);
+        return result.Result();
     }
 }

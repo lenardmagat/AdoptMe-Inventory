@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using inventory.DTOs;
 using inventory.Services;
+using inventory.Helper;
 namespace inventory.Controllers.AccountController;
 public partial class AccountController
 {
@@ -12,14 +13,6 @@ public partial class AccountController
             )
     {
         var result = await loginAccount.LoginExecute(credentials, cancellationToken);
-        if(!result.IsSuccess)
-            return StatusCode(
-                result.StatusCode, new
-                {
-                    error = result.Error,
-                    timestamp = DateTime.UtcNow
-                }
-            );
-        return Ok(result);
+        return result.Result();
     }
 }

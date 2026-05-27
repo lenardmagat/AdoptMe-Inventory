@@ -19,6 +19,7 @@ public class InventoryItem
     public required double price {get; set;}
     public Categories category {get; set;}
     public required int UserInventoryId{get; set;}
+    public required bool Status {get; set;}
     [ForeignKey(nameof(UserInventoryId))]
     public UserInventory Owner {get; set;} = null!;
     public required int StorageId {get; set;}

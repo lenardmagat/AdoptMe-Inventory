@@ -16,7 +16,7 @@ public class GetUserInventoryItemsService(IHasher _security, DbManager _db) : IG
             if(!InventoryId.IsSuccess) return Result<List<UserInventoryItemData>>.Failure(InventoryId.Error ?? "Invalid Credential", InventoryId.StatusCode);
         var rawDatas = await _db.inventoryItems
                                 .AsNoTracking()
-                                .Where(i=> i.UserInventoryId == InventoryId.Value && i.Owner.InvetoryStatus == true)
+                                .Where(i=> i.UserInventoryId == InventoryId.Value && i.Owner.InvetoryStatus == true && i.Status == true) 
                                 .Select(i => new
                                 {
                                     i.category,
@@ -29,7 +29,7 @@ public class GetUserInventoryItemsService(IHasher _security, DbManager _db) : IG
                                 }
                                 )
                                 .ToListAsync(cancellation);
-        if(rawDatas == null) return Result<List<UserInventoryItemData>>.Failure("Invalid Credentials", 400);
+        if(rawDatas == null) return Result<List<UserInventoryItemData>>.Failure("Not Found.", 404);
         List<UserInventoryItemData> InventoryItems =
                                             await Task.Run(() => 
                                                 rawDatas.Select( i => new UserInventoryItemData

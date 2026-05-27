@@ -15,9 +15,9 @@ public class UpsertItemasync(IHasher _security, DbManager _db) : IUpsertItemasyn
     public async Task<Result> ExecuteUpsertItemasync(int id, UpsertItemDetails itemDetails, CancellationToken cancellation)
     {
         Result<int> inventoryId = await Task.Run(() => _security.DecodeHashid(itemDetails.InventoryId));
-            if(!inventoryId.IsSuccess) return Result.Failure(inventoryId.Error ?? "INvalid Credentials", inventoryId.StatusCode);
+            if(!inventoryId.IsSuccess) return Result.Failure(inventoryId.Error ?? "Invalid Credentials", inventoryId.StatusCode);
         Result<int> storageId = await Task.Run(() => _security.DecodeHashid(itemDetails.StorageId));
-            if(!storageId.IsSuccess) return Result.Failure(storageId.Error ?? "INvalid Credentials", storageId.StatusCode);
+            if(!storageId.IsSuccess) return Result.Failure(storageId.Error ?? "Invalid Credentials", storageId.StatusCode);
         var userInventory = await _db.UserInventories
                                 .Where(i=> i.InventoryId == inventoryId.Value && i.UserId == id)
                                 .Select(i => new
@@ -33,6 +33,7 @@ public class UpsertItemasync(IHasher _security, DbManager _db) : IUpsertItemasyn
         if(userInventory.ExisitingItem != null)
         {
             var inventory = userInventory.ExisitingItem;
+            inventory.Status = true;
             inventory.category = itemDetails.Category.Value;
             inventory.price = itemDetails.Price;
             inventory.quantity = itemDetails.Quantity;
@@ -49,7 +50,8 @@ public class UpsertItemasync(IHasher _security, DbManager _db) : IUpsertItemasyn
                 UserInventoryId = inventoryId.Value,
                 category = itemDetails.Category.Value,
                 price = itemDetails.Price,
-                quantity = itemDetails.Quantity
+                quantity = itemDetails.Quantity,
+                Status = true
             };
             await _db.inventoryItems.AddAsync(NewItem,cancellation);
             await _db.SaveChangesAsync();

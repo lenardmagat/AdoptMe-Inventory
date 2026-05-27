@@ -1,4 +1,5 @@
 using System.Security.Cryptography.X509Certificates;
+using inventory.Helper;
 using inventory.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,14 +14,6 @@ public partial class ServiceController
     )
     {
         var result = await getUserInvetoryItems.ExecuteGetUserInventoryItems(InventoryId, cancellation);
-        if(!result.IsSuccess)
-            return StatusCode(
-                result.StatusCode, new
-                {
-                    error = result.Error,
-                    timestamp = DateTime.UtcNow
-                }
-            );
-        return Ok(result);
+        return result.Result();
     }
 }

@@ -1,0 +1,1 @@
+ ALTER  DELETE FROM "Users";

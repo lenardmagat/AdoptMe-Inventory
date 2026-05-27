@@ -1,3 +1,4 @@
+using inventory.DTOs;
 using inventory.Extensions;
 using inventory.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -6,16 +7,17 @@ using inventory.Helper;
 namespace inventory.Controllers.Services;
 public partial class ServiceController
 {
-    [HttpGet("UserInvetories")]
+    [HttpDelete("DeleteInventory/{InventoryId}")]
     [Authorize(Roles = "Admin, User")]
-    public async Task<IActionResult> GetUserInventories(
-        [FromServices] IGetUserInventoriesService getUserInventories,
-        CancellationToken cancellation
-        )
+    public async Task<IActionResult> DeleteInventory(
+        DeleteInventory InventoryId,
+        [FromServices] IDeleteInvetoryService deleteInvetory,
+        CancellationToken cancellation)
     {
         var UserId = User.GetUserId();
         if(!UserId.HasValue) return Unauthorized();
-        var result = await getUserInventories.ExecuteGetUserInventories(UserId.Value, cancellation);
+        var result = await deleteInvetory.ExecuteDeleteInventory(InventoryId, UserId.Value, cancellation);
         return result.Result();
     }
+
 }
