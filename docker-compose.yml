@@ -1,51 +1,23 @@
 version: '3.8'
 
 services:
-  # 🗄️ The PostgreSQL Database Container
   inventory-db:
     image: postgres:16-alpine
-    container_name: inventory_postgres_db
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: SecretPassword123
       POSTGRES_DB: inventory_db
-    ports:
-      - "5433:5432" # External machine maps to 5433, internal remains 5432
-    networks:
-      - inventory_network
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    # 🟢 FIXED: The healthcheck belongs strictly to the database container!
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d inventory_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
-  # ⚡ Your C# Application Container
   inventory-api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: inventory_api_service
     ports:
       - "8080:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production # 🟢 Switch to Production mode on the cloud
       - DATABASE_CONNECTION=${DATABASE_CONNECTION}
       - JWT_Key=${JWT_Key}
       - JWT_ISSUER=${JWT_ISSUER}
       - JWT_AUDIENCE=${JWT_AUDIENCE}
       - HASHIDS_SALT=${HASHIDS_SALT}
-    networks:
-      - inventory_network
-    depends_on:
-      inventory-db:
-        condition: service_healthy # 🟢 Forces API to wait until Postgres is fully booted!
-
-networks:
-  inventory_network:
-    driver: bridge
-
-volumes:
-  postgres_data:
