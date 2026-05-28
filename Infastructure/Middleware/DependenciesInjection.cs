@@ -5,6 +5,8 @@ using inventory.CredentialSecurity;
 using HashidsNet;
 
 using Microsoft.IdentityModel.Protocols.Configuration;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 namespace inventory.Injection;
 public static class DependencyInjection
 {
@@ -33,6 +35,30 @@ public static class DependencyInjection
         .WithScopedLifetime()
         );
         services.AddScoped<AdvancedBufferService>(options => { return new AdvancedBufferService("logs/inventory_buffer.json");});
+        services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.OnRejected = async (context, token) =>
+            {
+                context.HttpContext.Response.ContentType = "application/json";
+                await context.HttpContext.Response.WriteAsJsonAsync(
+                    new
+                    {
+                        error = "Rate limit exceeded. Try again later.",
+                        timestampt = DateTime.UtcNow
+                    }
+                );
+            };
+            options.AddFixedWindowLimiter(policyName: "IpBasedLimit", options =>
+            {
+                options.PermitLimit = 5;
+                options.Window = TimeSpan.FromMinutes(2);
+                options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                options.QueueLimit = 0;
+            })
+            ;
+        }
+        );
         return services;
     }
 }

@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Authorization;
 using inventory.Extensions;
 using System.Xml.XPath;
 using inventory.Helper;
+using Microsoft.AspNetCore.RateLimiting;
 namespace inventory.Controllers.AccountController;
 public partial class AccountController
 {
     [HttpPatch("UpdateProfile")]
     [Authorize(Roles = "User,Admin")]
+    [EnableRateLimiting("IpBasedLimit")]
     public async Task<IActionResult> UpdateAccount(
         [FromBody] ChangePasswordCredentials credentials,
         [FromServices] IChangePasswordServices changePasswordServices,

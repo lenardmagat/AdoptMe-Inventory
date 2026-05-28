@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 var app = Configuration.webApplication();
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
